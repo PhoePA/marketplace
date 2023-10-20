@@ -19,6 +19,6 @@ app.use(cors({origin:"*"}));
 app.use(authRoutes);
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
-  app.listen(8765);
-  console.log("Mongoose Server is running at port:8765");
+  app.listen(4000);
+  console.log("Server is running at port:4000");
 });

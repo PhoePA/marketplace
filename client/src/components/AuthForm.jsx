@@ -1,31 +1,51 @@
-import { Form, Input, Button, message } from "antd";
+import { Form, Input, message } from "antd";
 
-import{registerUser} from "../apicalls/auth"
+import { loginUser, registerUser } from "../apicalls/auth";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const AuthForm = ({ isLoginPage }) => {
-
-
-
-  const handOnFinish = async (values) => {
-    try {
-      const response = await registerUser(values);
-      if (response.isSuccess) {
-        message.success(response.message)
-      } else {
-        throw new Error(response.message)
+  const [submitting, setSubmitting] = useState(false);
+  const handleOnFinish = async (values) => {
+    setSubmitting(true);
+    if (isLoginPage) {
+      // console.log("Login");
+      try {
+        const response = await loginUser(values);
+        if (response.isSuccess) {
+          message.success(response.message);
+          localStorage.setItem("token", response.token);
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        message.error(error.message);
+      }
+    } else {
+      try {
+        const response = await registerUser(values);
+        if (response.isSuccess) {
+          message.success(response.message);
+        } else {
+          throw new Error(response.message);
+        }
+      } catch (error) {
+        message.error(error.message);
       }
     }
-    catch (error) {
-      message.error(error.message)
-    }
+    setSubmitting(false);
   };
+  // console.log(import.meta.env.VITE_SERVER_URL);
   return (
-    <section className="h-screen w-full flex items-center justify-center">
+    <section className="h-screen w-full flex flex-col items-center justify-center">
+      <div className=" h-1/5">
+        <h1 className=" font-bold text-5xl">Welcome to the Market</h1>
+      </div>
       <div className="w-[450px] border-violet-400 p-4 bg-slate-100 rounded-md">
         <h2 className="text-2xl font-bold text-center mb-5 text-blue-400">
           Point.IO - {isLoginPage ? "Login" : "Register"}
         </h2>
-        <Form layout="vertical" onFinish={handOnFinish}>
+        <Form layout="vertical" onFinish={handleOnFinish}>
           {!isLoginPage && (
             <Form.Item
               name="name"
@@ -86,10 +106,38 @@ const AuthForm = ({ isLoginPage }) => {
             ></Input.Password>
           </Form.Item>
           <Form.Item>
-            <Button className="w-full outline-none bg-blue-600 text-white rounded-md">
-              {isLoginPage ? "Log in" : " Register"}
-            </Button>
+            <button
+              className="w-full outline-none bg-blue-600 text-white py-2  rounded-md"
+              disabled={submitting}
+            >
+              {isLoginPage && !submitting && "Log In"}
+              {!isLoginPage && !submitting && "Register"}
+              {submitting && "Submitting"}
+            </button>
           </Form.Item>
+          <>
+            {isLoginPage ? (
+              <p className="text-center">
+                Do not have an account?
+                <Link
+                  to={"/register"}
+                  className=" ml-1 font-medium text-blue-600 hover:text-blue-800"
+                >
+                  Register Here!
+                </Link>
+              </p>
+            ) : (
+              <p className="text-center">
+                Already have an account?
+                <Link
+                  to={"/login"}
+                  className=" ml-1 font-medium text-blue-500 hover:text-blue-800"
+                >
+                  Login Here!
+                </Link>
+              </p>
+            )}
+          </>
         </Form>
       </div>
     </section>
