@@ -73,7 +73,7 @@ exports.login = async (req, res, next) => {
     }
 
     // create jwttoken
-    const token = jwt.sign({ userId: userDoc._id }, process.env.JWT_TOKEN, {
+    const token = jwt.sign({ userId: userDoc._id }, process.env.JWT_KEY, {
       expiresIn: "1d",
     });
 
@@ -81,6 +81,25 @@ exports.login = async (req, res, next) => {
       isSuccess: true,
       message: "Logged in Successfully!",
       token,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      isSuccess: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.checkCurrentUser = async (req, res, next) => {
+  try {
+    const userDoc = await User.findById(req.userId).select("name email role");
+    if (!userDoc) {
+      throw new Error("Unauthorized User!");
+    }
+    res.status(200).json({
+      isSuccess: true,
+      message: "User is authorized",
+      userDoc,
     });
   } catch (error) {
     return res.status(401).json({
