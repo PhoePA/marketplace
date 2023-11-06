@@ -1,8 +1,11 @@
 import { SquaresPlusIcon } from "@heroicons/react/24/solid";
-import { Checkbox, Col, Form, Input, Row, Select } from "antd";
+import { Checkbox, Col, Form, Input, message, Row, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 
-const AddProduct = () => {
+import { sellProduct } from "../../apicalls/product";
+
+const AddProduct = ({ setActiveTabKey }) => {
+  const [form] = Form.useForm();
   const categoriesOptions = [
     {
       value: "electronics",
@@ -44,7 +47,7 @@ const AddProduct = () => {
 
   const checkboxOptions = [
     {
-      value: "wccessories",
+      value: "accessories",
       label: "Accessories",
     },
     {
@@ -56,12 +59,28 @@ const AddProduct = () => {
       label: "Voucher",
     },
   ];
+
+  const onFinishHandler = async (values) => {
+    try {
+      const response = await sellProduct(values);
+      if (response.isSuccess) {
+        form.resetFields();
+        message.success(response.message);
+        setActiveTabKey("1");
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      message.error(err.message);
+    }
+  };
+
   return (
     <section>
-      <h1 className="text-center p-2 text-lg font-bold">
+      <h1 className="text-center p-2 text-3xl font-semibold">
         What do you want to Sell?
       </h1>
-      <Form layout="vertical">
+      <Form layout="vertical" onFinish={onFinishHandler}>
         <Form.Item
           name="product_name"
           label="Product Name"
@@ -133,7 +152,7 @@ const AddProduct = () => {
           </Col>
           <Col span={8}>
             <Form.Item
-              name="product_used for"
+              name="product_used_for"
               label="Used for"
               hasFeedback
               rules={[
@@ -143,7 +162,7 @@ const AddProduct = () => {
                 },
               ]}
             >
-              <Input type="number" placeholder="Product Used Time" />
+              <Input type="text" placeholder="Product Used Time" />
             </Form.Item>
           </Col>
         </Row>

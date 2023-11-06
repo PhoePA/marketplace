@@ -3,14 +3,14 @@ import { useSelector } from "react-redux";
 import { UserIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/solid";
 
 const Nav = () => {
-  const {userId} = useSelector((state) => state.reducer.user);
+  const { user } = useSelector((state) => state.reducer.user);
   // console.log(user);
   return (
     <nav className="flex items-center justify-between p-4 rounded text-white bg-blue-500">
       <Link to={"/"} className=" font-bold text-4xl">
         Point.IO
       </Link>
-      {userId ? (
+      {user ? (
         <div className="  flex items-center gap-3 text-base font-medium ">
           <Link to={"/profile"} className="flex items-center">
             <UserIcon width={21} /> Profile
@@ -26,7 +26,7 @@ const Nav = () => {
         </div>
       )}
     </nav>
-  ); 
+  );
 };
 
 export default Nav;
