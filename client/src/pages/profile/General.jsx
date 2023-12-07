@@ -20,7 +20,7 @@ const General = () => {
 
   return (
     <section>
-      <h1 className="text-center text-2xl p-4">Details</h1>
+      <h1 className="text-center text-2xl p-4 font-semibold">Details</h1>
       <ul>
         <li className="flex items-center text-base font-bold">
           <EnvelopeOpenIcon width={18} />

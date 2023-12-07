@@ -1,71 +1,93 @@
 import { SquaresPlusIcon } from "@heroicons/react/24/solid";
 import { Checkbox, Col, Form, Input, message, Row, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { useEffect, useState } from "react";
 
-import { sellProduct } from "../../apicalls/product";
+import {
+  sellProduct,
+  getOldProduct,
+  updateProduct,
+} from "../../apicalls/product";
 
-const AddProduct = ({ setActiveTabKey }) => {
+const AddProduct = ({
+  setActiveTabKey,
+  getProducts,
+  editMode,
+  editProductId,
+}) => {
   const [form] = Form.useForm();
+
+  const [sellerId, setSellerId] = useState(null);
+
   const categoriesOptions = [
     {
-      value: "electronics",
+      value: "Electronics",
       label: "Electronics",
     },
     {
-      value: "clothing",
+      value: "Clothing",
       label: "Clothing",
     },
     {
-      value: "furniture",
+      value: "Furniture",
       label: "Furniture",
     },
     {
-      value: "books",
+      value: "Books",
       label: "Books",
     },
     {
-      value: "beauty",
+      value: "Beauty",
       label: "Beauty",
     },
     {
-      value: "sports",
+      value: "Sports",
       label: "Sports",
     },
     {
-      value: "automotive",
+      value: "Automotive",
       label: "Automotive",
     },
     {
-      value: "jewelry",
+      value: "Jewelry",
       label: "Jewelry",
     },
     {
-      value: "toys",
+      value: "Toys",
       label: "Toys",
     },
   ];
 
   const checkboxOptions = [
     {
-      value: "accessories",
+      value: "Accessories",
       label: "Accessories",
     },
     {
-      value: "warranty",
+      value: "Warranty",
       label: "Warranty",
     },
     {
-      value: "voucher",
+      value: "Voucher",
       label: "Voucher",
     },
   ];
 
   const onFinishHandler = async (values) => {
     try {
-      const response = await sellProduct(values);
+      let response;
+      if (editMode) {
+        values.seller_id = sellerId;
+        values.product_id = editProductId;
+        response = await updateProduct(values);
+      } else {
+        response = await sellProduct(values);
+      }
+
       if (response.isSuccess) {
         form.resetFields();
         message.success(response.message);
+        getProducts();
         setActiveTabKey("1");
       } else {
         throw new Error(response.message);
@@ -75,12 +97,49 @@ const AddProduct = ({ setActiveTabKey }) => {
     }
   };
 
+  const getOldProductData = async () => {
+    try {
+      const response = await getOldProduct(editProductId);
+      if (response.isSuccess) {
+        message.success("Edit mode on!");
+        const { name, description, price, category, usedFor, details, seller } =
+          response.productDoc;
+        setSellerId(seller);
+        const modifiedProduct = {
+          product_name: name,
+          product_description: description,
+          product_price: price,
+          product_category: category,
+          product_used_for: usedFor,
+          product_details: details,
+        };
+        // console.log(modifiedProduct);
+        form.setFieldsValue(modifiedProduct);
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      message.error(err.message);
+    }
+  };
+
+  useEffect(
+    (_) => {
+      if (editMode) {
+        getOldProductData();
+      } else {
+        form.resetFields();
+      }
+    },
+    [editMode]
+  );
+
   return (
     <section>
       <h1 className="text-center p-2 text-3xl font-semibold">
-        What do you want to Sell?
+        {editMode ? "Update Your Product Here!" : "What do you want to Sell?"}
       </h1>
-      <Form layout="vertical" onFinish={onFinishHandler}>
+      <Form layout="vertical" onFinish={onFinishHandler} form={form}>
         <Form.Item
           name="product_name"
           label="Product Name"
@@ -176,7 +235,9 @@ const AddProduct = ({ setActiveTabKey }) => {
 
         <button className="flex font-medium text-lg text-center justify-center p-1 gap-1 rounded-md items-center bg-violet-400 w-full">
           <SquaresPlusIcon width={21} />
-          Sell
+          {
+            editMode ? "Update Product"  : "Sell Product"
+         }
         </button>
       </Form>
     </section>

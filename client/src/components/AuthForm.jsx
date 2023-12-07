@@ -53,7 +53,7 @@ const AuthForm = ({ isLoginPage }) => {
         <h2 className="text-2xl font-bold text-center mb-5 text-blue-400">
           Point.IO - {isLoginPage ? "Login" : "Register"}
         </h2>
-        <Form layout="vertical" onFinish={handleOnFinish}>
+        <Form layout="vertical" onFinish={handleOnFinish} >
           {!isLoginPage && (
             <Form.Item
               name="name"
